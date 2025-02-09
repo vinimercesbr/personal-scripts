@@ -260,8 +260,8 @@ auto() {
     restore_firefox
     msg 'Installing vanilla Gnome session'
     setup_vanilla_gnome
-    msg 'Adding julianfairfax repo'
-    setup_julianfairfax_repo
+    #msg 'Adding julianfairfax repo'
+    #setup_julianfairfax_repo
     msg 'Install adw-gtk3 and set dark theme'
     install_adwgtk3
     msg 'Installing GNOME 46 and morewaita icons'
