@@ -97,7 +97,7 @@ install_adwgtk3() {
 install_icons() {
     #wget https://deb.debian.org/debian/pool/main/a/adwaita-icon-theme/adwaita-icon-theme_46.0-1_all.deb -O /tmp/adwaita-icon-theme.deb
     wget https://deb.debian.org/debian/pool/main/a/adwaita-icon-theme-legacy/adwaita-icon-theme-legacy_46.2-2_all.deb -O /tmp/adwaita-icon-theme-legacy_46.2-2_all.deb
-    apt install /tmp/adwaita-icon-theme.deb -y
+    apt install /tmp/adwaita-icon-theme-legacy_46.2-2_all.deb -y
     apt install morewaita -y    
 }
 
