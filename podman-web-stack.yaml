@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  apache:
+    image: httpd:2.4
+    container_name: apache
+    ports:
+      - "80:80"
+    volumes:
+      - ./www:/usr/local/apache2/htdocs/  # Arquivos frontend (Vue.js + TailwindCSS)
+      - ./apache-config:/usr/local/apache2/conf  # Arquivos de configuração do Apache
+    depends_on:
+      - php  # Apache depende do backend PHP
+    networks:
+      - app_network
+    mem_limit: 256m  # Limite de memória para o Apache
+
+  php:
+    image: php:8.2-fpm
+    container_name: php
+    volumes:
+      - ./www:/var/www/html  # Arquivos backend PHP
+    depends_on:
+      - mysql  # PHP depende do MySQL
+    networks:
+      - app_network
+    mem_limit: 256m  # Limite de memória para o PHP
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persistência de dados do MySQL
+    networks:
+      - app_network
+    mem_limit: 512m  # Limite de memória para o MySQL
+
+  node:
+    image: node:16
+    container_name: node
+    working_dir: /app
+    volumes:
+      - ./frontend:/app  # Monta a pasta Vue.js
+    command: >
+      sh -c "npm install && npm run build"  # Instala dependências e gera os arquivos da aplicação
+    networks:
+      - app_network
+    mem_limit: 512m  # Limite de memória para o Node.js (para build)
+
+  vue:
+    image: node:16
+    container_name: vue
+    working_dir: /app
+    volumes:
+      - ./frontend:/app  # Monta a pasta Vue.js
+    command: >
+      sh -c "npm install && npm run serve && npm install -D tailwindcss && npx tailwindcss init"  # Instala e configura o TailwindCSS
+    ports:
+      - "8080:8080"  # Expondo a porta 8080 para o Vue.js
+    networks:
+      - app_network
+    mem_limit: 512m  # Limite de memória para o Vue.js
+
+volumes:
+  mysql_data:  # Volume persistente para o MySQL
+
+networks:
+  app_network:
+    driver: bridge  # Rede interna para os containers
