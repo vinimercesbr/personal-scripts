@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Diretórios de trabalho
 TARGET_DIR="/mnt/btrfs"
 
