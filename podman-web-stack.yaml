@@ -47,7 +47,7 @@ services:
     volumes:
       - ./frontend:/app  # Monta a pasta Vue.js
     command: >
-      sh -c "npm install && npm run build"  # Instala dependências e gera os arquivos da aplicação
+      sh -c "npm install && npm install -D tailwindcss && npx tailwindcss init && npm run build"  # Instala dependências, configura o TailwindCSS e gera os arquivos da aplicação
     networks:
       - app_network
     mem_limit: 512m  # Limite de memória para o Node.js (para build)
@@ -59,7 +59,7 @@ services:
     volumes:
       - ./frontend:/app  # Monta a pasta Vue.js
     command: >
-      sh -c "npm install && npm run serve && npm install -D tailwindcss && npx tailwindcss init"  # Instala e configura o TailwindCSS
+      sh -c "npm run serve"  # Inicia o servidor de desenvolvimento
     ports:
       - "8080:8080"  # Expondo a porta 8080 para o Vue.js
     networks:
