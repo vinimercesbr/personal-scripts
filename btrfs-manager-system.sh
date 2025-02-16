@@ -1,202 +1,202 @@
 #!/usr/bin/env bash
-# Diretórios
+# Directories
 DIR_MOUNT="/mnt"
 
-# Função para listar os usuários
+# Function to list users
 list_users() {
-    echo "Usuários disponíveis no sistema:"
+    echo "Users available on the system:"
     cut -d: -f1 /etc/passwd
     echo
 }
 
-# Função para obter o diretório home do usuário
+# Function to get the user's home directory
 get_user_home() {
     while true; do
-        echo -n "Digite o nome do usuário para determinar o diretório home (ou 'sair' para cancelar): "
+        echo -n "Enter the username to determine the home directory (or 'exit' to cancel): "
         read USERNAME
 
-        if [[ "$USERNAME" == "sair" ]]; then
+        if [[ "$USERNAME" == "exit" ]]; then
             return 1
         fi
 
         DIR_HOME=$(eval echo ~$USERNAME)
 
-        # Verificar se o diretório home existe
+        # Check if the home directory exists
         if [ ! -d "$DIR_HOME" ]; then
-          echo "Erro: O usuário '$USERNAME' não existe ou o diretório home não foi encontrado!"
+            echo "Error: User '$USERNAME' does not exist or home directory not found!"
         else
-          echo "Diretório home do usuário $USERNAME é $DIR_HOME"
-          return 0
-        fi
-    done
-}
-
-# Função para criar um sistema de arquivos Btrfs
-create_filesystem() {
-    lsblk -f | grep sd
-    echo -n "Digite o dispositivo para criar o sistema de arquivos (ex: /dev/sda1): "
-    read DEVICE
-
-    # Verificar se o dispositivo existe
-    if [ ! -b "$DEVICE" ]; then
-        echo "Erro: O dispositivo '$DEVICE' não foi encontrado ou não é um dispositivo de bloco!"
-        return 1
-    fi
-
-    echo "Criando sistema de arquivos Btrfs em $DEVICE..."
-    if ! sudo mkfs.btrfs -f $DEVICE; then
-        echo "Erro ao criar o sistema de arquivos em $DEVICE!"
-        return 1
-    fi
-    echo "Sistema de arquivos criado com sucesso em $DEVICE."
-}
-
-# Função para montar um sistema de arquivos Btrfs
-mount_filesystem() {
-    echo -n "Digite o dispositivo para montar o sistema de arquivos (ex: /dev/sda1): "
-    read DEVICE
-
-    # Verificar se o dispositivo existe
-    if [ ! -b "$DEVICE" ]; then
-        echo "Erro: O dispositivo '$DEVICE' não foi encontrado ou não é um dispositivo de bloco!"
-        return 1
-    fi
-
-    echo "Montando sistema de arquivos Btrfs em $DIR_MOUNT..."
-    if ! sudo mount $DEVICE $DIR_MOUNT; then
-        echo "Erro ao montar o sistema de arquivos em $DEVICE!"
-        return 1
-    fi
-    echo "Sistema de arquivos montado em $DIR_MOUNT."
-}
-
-# Função para criar um subvolume
-create_subvolume() {
-    echo -n "Digite o nome do subvolume a ser criado: "
-    read SUBVOLUME_NAME
-
-    # Verificar se o subvolume já existe
-    if [ -d "$DIR_MOUNT/$SUBVOLUME_NAME" ]; then
-        echo "Erro: O subvolume '$SUBVOLUME_NAME' já existe!"
-        return 1
-    fi
-
-    echo "Criando subvolume $SUBVOLUME_NAME..."
-    if ! sudo btrfs subvolume create $DIR_MOUNT/$SUBVOLUME_NAME; then
-        echo "Erro ao criar o subvolume!"
-        return 1
-    fi
-    echo "Subvolume $SUBVOLUME_NAME criado com sucesso."
-}
-
-# Função para listar subvolumes
-list_subvolumes() {
-    echo "Listando subvolumes..."
-    sudo btrfs subvolume list $DIR_MOUNT
-}
-
-# Função para criar um snapshot
-create_snapshot() {
-    if [ ! -d "$DIR_HOME/.snapshots" ]; then
-        mkdir -p $DIR_HOME/.snapshots
-    fi
-    SNAPSHOT_NAME=$(date +%Y-%m-%d_%H-%M-%S)
-    echo "Criando snapshot $SNAPSHOT_NAME..."
-    if ! sudo btrfs subvolume snapshot $DIR_HOME $DIR_HOME/.snapshots/$SNAPSHOT_NAME; then
-        echo "Erro ao criar snapshot!"
-        return 1
-    fi
-    echo "Snapshot $SNAPSHOT_NAME criado com sucesso."
-}
-
-# Função para listar snapshots
-list_snapshots() {
-    echo "Listando snapshots..."
-    sudo btrfs subvolume list $DIR_HOME/.snapshots
-}
-
-# Função para restaurar um snapshot
-restore_snapshot() {
-    echo "Snapshots disponíveis:"
-    list_snapshots
-
-    while true; do
-        echo -n "Digite o nome do snapshot a ser restaurado (ou 'sair' para cancelar): "
-        read SNAP_NAME
-
-        if [[ "$SNAP_NAME" == "sair" ]]; then
-            return 1
-        fi
-
-        if [ ! -d "$DIR_HOME/.snapshots/$SNAP_NAME" ]; then
-            echo "Erro: O snapshot '$SNAP_NAME' não foi encontrado!"
-        else
-            if ! sudo btrfs subvolume set-default $DIR_HOME/.snapshots/$SNAP_NAME; then
-                echo "Erro ao restaurar o snapshot!"
-                return 1
-            fi
-            echo "Snapshot restaurado: $SNAP_NAME"
+            echo "Home directory for user $USERNAME is $DIR_HOME"
             return 0
         fi
     done
 }
 
-# Função para verificar integridade (scrub)
-scrub_filesystem() {
-    echo "Iniciando verificação de integridade..."
-    if ! sudo btrfs scrub start $DIR_MOUNT; then
-        echo "Erro ao iniciar verificação de integridade!"
-        return 1
-    fi
-    echo "Verificação de integridade iniciada com sucesso."
-}
-
-# Função para balancear dados (balance)
-balance_filesystem() {
-    echo "Iniciando rebalanceamento de dados..."
-    if ! sudo btrfs balance start $DIR_MOUNT; then
-        echo "Erro ao iniciar rebalanceamento de dados!"
-        return 1
-    fi
-    echo "Rebalanceamento de dados iniciado com sucesso."
-}
-
-# Função para verificar o sistema de arquivos
-check_filesystem() {
-    echo -n "Digite o dispositivo para verificar o sistema de arquivos (ex: /dev/sda1): "
+# Function to create a Btrfs filesystem
+create_filesystem() {
+    lsblk -f | grep sd
+    echo -n "Enter the device to create the filesystem (e.g., /dev/sda1): "
     read DEVICE
 
-    # Verificar se o dispositivo existe
+    # Check if the device exists
     if [ ! -b "$DEVICE" ]; then
-        echo "Erro: O dispositivo '$DEVICE' não foi encontrado ou não é um dispositivo de bloco!"
+        echo "Error: Device '$DEVICE' not found or not a block device!"
         return 1
     fi
 
-    echo "Verificando o sistema de arquivos em $DEVICE..."
-    if ! sudo btrfs check $DEVICE; then
-        echo "Erro ao verificar o sistema de arquivos em $DEVICE!"
+    echo "Creating Btrfs filesystem on $DEVICE..."
+    if ! sudo mkfs.btrfs -f $DEVICE; then
+        echo "Error creating filesystem on $DEVICE!"
         return 1
     fi
-    echo "Sistema de arquivos verificado com sucesso."
+    echo "Filesystem created successfully on $DEVICE."
+}
+
+# Function to mount a Btrfs filesystem
+mount_filesystem() {
+    echo -n "Enter the device to mount the filesystem (e.g., /dev/sda1): "
+    read DEVICE
+
+    # Check if the device exists
+    if [ ! -b "$DEVICE" ]; then
+        echo "Error: Device '$DEVICE' not found or not a block device!"
+        return 1
+    fi
+
+    echo "Mounting Btrfs filesystem on $DIR_MOUNT..."
+    if ! sudo mount $DEVICE $DIR_MOUNT; then
+        echo "Error mounting filesystem on $DEVICE!"
+        return 1
+    fi
+    echo "Filesystem mounted on $DIR_MOUNT."
+}
+
+# Function to create a subvolume
+create_subvolume() {
+    echo -n "Enter the name of the subvolume to be created: "
+    read SUBVOLUME_NAME
+
+    # Check if the subvolume already exists
+    if [ -d "$DIR_MOUNT/$SUBVOLUME_NAME" ]; then
+        echo "Error: Subvolume '$SUBVOLUME_NAME' already exists!"
+        return 1
+    fi
+
+    echo "Creating subvolume $SUBVOLUME_NAME..."
+    if ! sudo btrfs subvolume create $DIR_MOUNT/$SUBVOLUME_NAME; then
+        echo "Error creating subvolume!"
+        return 1
+    fi
+    echo "Subvolume $SUBVOLUME_NAME created successfully."
+}
+
+# Function to list subvolumes
+list_subvolumes() {
+    echo "Listing subvolumes..."
+    sudo btrfs subvolume list $DIR_MOUNT
+}
+
+# Function to create a snapshot
+create_snapshot() {
+    if [ ! -d "$DIR_HOME/.snapshots" ]; then
+        mkdir -p $DIR_HOME/.snapshots
+    fi
+    SNAPSHOT_NAME=$(date +%Y-%m-%d_%H-%M-%S)
+    echo "Creating snapshot $SNAPSHOT_NAME..."
+    if ! sudo btrfs subvolume snapshot $DIR_HOME $DIR_HOME/.snapshots/$SNAPSHOT_NAME; then
+        echo "Error creating snapshot!"
+        return 1
+    fi
+    echo "Snapshot $SNAPSHOT_NAME created successfully."
+}
+
+# Function to list snapshots
+list_snapshots() {
+    echo "Listing snapshots..."
+    sudo btrfs subvolume list $DIR_HOME/.snapshots
+}
+
+# Function to restore a snapshot
+restore_snapshot() {
+    echo "Available snapshots:"
+    list_snapshots
+
+    while true; do
+        echo -n "Enter the name of the snapshot to be restored (or 'exit' to cancel): "
+        read SNAP_NAME
+
+        if [[ "$SNAP_NAME" == "exit" ]]; then
+            return 1
+        fi
+
+        if [ ! -d "$DIR_HOME/.snapshots/$SNAP_NAME" ]; then
+            echo "Error: Snapshot '$SNAP_NAME' not found!"
+        else
+            if ! sudo btrfs subvolume set-default $DIR_HOME/.snapshots/$SNAP_NAME; then
+                echo "Error restoring snapshot!"
+                return 1
+            fi
+            echo "Snapshot restored: $SNAP_NAME"
+            return 0
+        fi
+    done
+}
+
+# Function to perform a filesystem scrub
+scrub_filesystem() {
+    echo "Starting filesystem scrub..."
+    if ! sudo btrfs scrub start $DIR_MOUNT; then
+        echo "Error starting filesystem scrub!"
+        return 1
+    fi
+    echo "Filesystem scrub started successfully."
+}
+
+# Function to balance filesystem data
+balance_filesystem() {
+    echo "Starting filesystem balance..."
+    if ! sudo btrfs balance start $DIR_MOUNT; then
+        echo "Error starting filesystem balance!"
+        return 1
+    fi
+    echo "Filesystem balance started successfully."
+}
+
+# Function to check the filesystem
+check_filesystem() {
+    echo -n "Enter the device to check the filesystem (e.g., /dev/sda1): "
+    read DEVICE
+
+    # Check if the device exists
+    if [ ! -b "$DEVICE" ]; then
+        echo "Error: Device '$DEVICE' not found or not a block device!"
+        return 1
+    fi
+
+    echo "Checking filesystem on $DEVICE..."
+    if ! sudo btrfs check $DEVICE; then
+        echo "Error checking filesystem on $DEVICE!"
+        return 1
+    fi
+    echo "Filesystem checked successfully."
 }
 
 # Menu
-list_users  # Lista os usuários antes de qualquer outra opção
+list_users  # List users before any other option
 
 while true; do
-    echo "Escolha uma opção:"
-    echo "1. Criar sistema de arquivos Btrfs"
-    echo "2. Montar sistema de arquivos Btrfs"
-    echo "3. Criar subvolume"
-    echo "4. Listar subvolumes"
-    echo "5. Criar snapshot"
-    echo "6. Listar snapshots"
-    echo "7. Restaurar snapshot"
-    echo "8. Verificação de integridade (scrub)"
-    echo "9. Rebalancear dados (balance)"
-    echo "10. Verificar sistema de arquivos"
-    echo "0. Sair"
-    echo -n "Opção: "
+    echo "Choose an option:"
+    echo "1. Create Btrfs filesystem"
+    echo "2. Mount Btrfs filesystem"
+    echo "3. Create subvolume"
+    echo "4. List subvolumes"
+    echo "5. Create snapshot"
+    echo "6. List snapshots"
+    echo "7. Restore snapshot"
+    echo "8. Perform filesystem scrub"
+    echo "9. Balance filesystem data"
+    echo "10. Check filesystem"
+    echo "0. Exit"
+    echo -n "Option: "
     read OPTION
 
     case $OPTION in
@@ -237,11 +237,11 @@ while true; do
             check_filesystem
             ;;
         0)
-            echo "Saindo..."
+            echo "Exiting..."
             exit 0
             ;;
         *)
-            echo "Opção inválida!"
+            echo "Invalid option!"
             ;;
     esac
 done

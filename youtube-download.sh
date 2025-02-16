@@ -1,42 +1,42 @@
 #!/bin/bash
 
-# Exibe o menu
-echo "Selecione uma opção:"
-echo "1. Baixar Vídeo"
-echo "2. Baixar Aúdio"
-echo "3. Baixar Playlist"
-read -p "Opção: " opcao
+# Display the menu
+echo "Select an option:"
+echo "1. Download Video"
+echo "2. Download Audio"
+echo "3. Download Playlist"
+read -p "Option: " option
 
-# Função para baixar vídeo
-baixar_video() {
-    read -p "Digite a URL do vídeo: " url
+# Function to download video
+download_video() {
+    read -p "Enter the video URL: " url
     yt-dlp "$url"
 }
 
-# Função para baixar música
-baixar_musica() {
-    read -p "Digite a URL da música: " url
+# Function to download audio
+download_audio() {
+    read -p "Enter the audio URL: " url
     yt-dlp --extract-audio --audio-format mp3 "$url"
 }
 
-# Função para baixar playlist
-baixar_playlist() {
-    read -p "Digite a URL da playlist: " url
+# Function to download playlist
+download_playlist() {
+    read -p "Enter the playlist URL: " url
     yt-dlp --yes-playlist "$url"
 }
 
-# Executa a função correspondente à opção selecionada
-case $opcao in
+# Execute the corresponding function based on the selected option
+case $option in
     1)
-        baixar_video
+        download_video
         ;;
     2)
-        baixar_musica
+        download_audio
         ;;
     3)
-        baixar_playlist
+        download_playlist
         ;;
     *)
-        echo "Opção inválida!"
+        echo "Invalid option!"
         ;;
 esac
