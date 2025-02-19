@@ -16,8 +16,9 @@ download_video() {
 # Function to download audio
 download_audio() {
     read -p "Enter the audio URL: " url
-    yt-dlp --extract-audio --audio-format mp3 "$url"
+    yt-dlp -f bestaudio --embed-thumbnail --add-metadata --extract-audio --audio-format mp3 --parse-metadata "playlist_index:%(track_number)s" -o "%(title)s.%(ext)s" "$url"
 }
+
 
 # Function to download playlist
 download_playlist() {
