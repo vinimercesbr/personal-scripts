@@ -1,0 +1,100 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu
+    username: user
+    password: pass
+  storage:
+    layout:
+      name: direct
+    config:
+      - id: disk-sda
+        type: disk
+        match:
+          ssd: true
+        ptable: gpt
+        wipe: superblock-recursive
+        preserve: false
+        name: ''
+        grub_device: true
+        device: /dev/sda
+        children:
+          - id: part-efi
+            type: partition
+            size: 512M
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            flag: boot
+            number: 1
+            device: /dev/sda1
+            fs:
+              type: fat32
+              mount: /boot/efi
+          - id: part-root
+            type: partition
+            size: 45G
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            number: 2
+            device: /dev/sda2
+            fs:
+              type: ext4
+              mount: /
+          - id: part-swap
+            type: partition
+            size: 2G
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            number: 3
+            device: /dev/sda3
+            fs:
+              type: swap
+          - id: part-var
+            type: partition
+            size: 30G
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            number: 4
+            device: /dev/sda4
+            fs:
+              type: ext4
+              mount: /var
+          - id: part-home
+            type: partition
+            size: 90G
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            number: 5
+            device: /dev/sda5
+            fs:
+              type: btrfs
+              mount: /home
+              options: [ encrypt ]
+          - id: part-tmp
+            type: partition
+            size: 5G
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            number: 6
+            device: /dev/sda6
+            fs:
+              type: ext4
+              mount: /tmp
+          - id: part-backup
+            type: partition
+            size: 40G
+            wipe: superblock
+            preserve: false
+            grub_device: false
+            number: 7
+            device: /dev/sda7
+            fs:
+              type: ext4
+              mount: /backup
