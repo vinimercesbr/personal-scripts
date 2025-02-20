@@ -4,7 +4,15 @@ autoinstall:
   identity:
     hostname: ubuntu
     username: user
-    password: pass
+    password: "" # Senha do usuário comum (definir de forma segura)
+    realname: "Ubuntu User"
+  user-data:
+    users:
+      - name: root
+        passwd: "" # Hash da senha root (definir de forma segura)
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        groups: sudo
+        lock_passwd: false
   storage:
     layout:
       name: direct
@@ -75,7 +83,7 @@ autoinstall:
             fs:
               type: btrfs
               mount: /home
-              options: [ encrypt ]
+              options: [ encrypt, "key_source=prompt" ] # Solicita senha de criptografia
           - id: part-tmp
             type: partition
             size: 5G
