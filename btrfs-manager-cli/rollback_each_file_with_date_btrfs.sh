@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Diretório de snapshots
-SNAPSHOT_DIR="/home/.snapshots"
+SNAPSHOT_DIR="/backup/.snapshots"
 
 # Função para listar snapshots disponíveis a partir de uma data específica
 list_snapshots() {
