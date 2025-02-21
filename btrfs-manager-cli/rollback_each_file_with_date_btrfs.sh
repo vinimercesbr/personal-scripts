@@ -3,27 +3,10 @@
 # Diretório de snapshots
 SNAPSHOT_DIR="/backup/.snapshots"
 
-# Função para listar snapshots disponíveis a partir de uma data específica
+# Função para listar todos os snapshots disponíveis
 list_snapshots() {
-    echo "Snapshots disponíveis a partir da data especificada:"
-    read -p "Digite a data no formato YYYYMMDD (exemplo: 20230221): " START_DATE
-    
-    # Verificar se a data foi fornecida
-    if [ -z "$START_DATE" ]; then
-        echo "Erro: Nenhuma data fornecida."
-        return 1
-    fi
-    
-    # Listar snapshots que atendem à data
-    snapshots=$(find "$SNAPSHOT_DIR" -type f -name "*.snapshot" -print0 | \
-        while IFS= read -r -d '' snapshot; do
-            snapshot_date=$(basename "$snapshot" | grep -oP '\d{8}_\d{6}')
-            if [ "$snapshot_date" \>= "$START_DATE" ]; then
-                echo "$(basename "$snapshot")"
-            fi
-        done)
-    
-    echo "$snapshots"
+    echo "Snapshots disponíveis:"
+    ls -1 "$SNAPSHOT_DIR"
 }
 
 # Função para listar arquivos disponíveis em um snapshot específico
@@ -40,7 +23,7 @@ restore_file() {
     local snapshot_path="$SNAPSHOT_DIR/$snapshot_name/$file_name"
 
     # Verificar se o arquivo existe no snapshot
-    if [ -f "$snapshot_path" ]; then
+    if [ -f "$snapshot_path" ]; então
         # Restaurar o arquivo a partir do snapshot
         cp "$snapshot_path" "/home/$file_name"
         echo "Arquivo $file_name restaurado a partir do snapshot $snapshot_name."
@@ -49,10 +32,12 @@ restore_file() {
     fi
 }
 
-# Listar snapshots disponíveis a partir da data especificada
+# Listar todos os snapshots disponíveis
 snapshots=$(list_snapshots)
-if [ -z "$snapshots" ]; then
-    echo "Nenhum snapshot encontrado a partir da data especificada."
+
+# Verificar se há snapshots disponíveis
+if [ -z "$snapshots" ]; então
+    echo "Nenhum snapshot encontrado."
     exit 1
 fi
 
@@ -60,7 +45,7 @@ fi
 read -p "Digite o nome do snapshot que deseja usar (formato: nome_arquivo-YYYYMMDD_HHMMSS.snapshot): " SNAPSHOT_NAME
 
 # Verificar se o snapshot existe
-if [[ "$snapshots" == *"$SNAPSHOT_NAME"* ]]; then
+if [[ "$snapshots" == *"$SNAPSHOT_NAME"* ]]; então
     # Listar arquivos disponíveis no snapshot escolhido
     list_files_in_snapshot "$SNAPSHOT_NAME"
 
