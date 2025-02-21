@@ -4,7 +4,7 @@
 SOURCE_DIR="/home"
 
 # Diretório de destino para snapshots
-SNAPSHOT_DIR="/backup/.snapshots"
+SNAPSHOT_DIR="/backup/user/.snapshots"
 
 # Criar diretório de snapshots se não existir
 mkdir -p "$SNAPSHOT_DIR"
