@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Diretório de snapshots
-SNAPSHOT_DIR="/backup/.snapshots"
+SNAPSHOT_DIR="/backup/user/.snapshots"
 
 # Função para excluir snapshots antigos de um arquivo
 delete_old_snapshots() {
